@@ -3,10 +3,6 @@ import doctorImage from '../assets/images/doctor.png';
 import patientImage from '../assets/images/patient.png';
 import officeImage from '../assets/images/office.png';
 import ToggleButton from '../gameobjects/Button.js';
-import closeWindow from '../assets/images/close.png';
-import trophyImage from '../assets/images/trophy.png';
-import continueButton from '../assets/images/continue.png';
-import EndPhasePopUp from './EndPhasePopUp.js';
 import BaseScene from './BaseScene.js';
 
 export default class DoctorOfficeScene extends BaseScene {
@@ -26,6 +22,15 @@ export default class DoctorOfficeScene extends BaseScene {
 
         // Set the scene
         this.scoreDisplay.setScene(this);
+
+        // add highlight to score display object
+        this.scene.launch('HighlightObjectPopUp', { 
+            x: 480, 
+            y: 40, 
+            highlightX: 250,
+            highlightY:50,
+            message: "Meet your new ally! It’s here to help you make smart decisions" 
+        }); 
       
         // Get the width and height of the game canvas
         const { width, height } = this.sys.game.config;
@@ -63,7 +68,7 @@ export default class DoctorOfficeScene extends BaseScene {
             75,
             'Change Scene',
             { fontSize: '20px', fill: '#ffffff', backgroundColor: '#000000', padding: { x: 10, y: 5 }, borderRadius: 5 },
-            () =>  this.scene.launch('EndPhasePopUp', {message:finalSceneMessage})
+            () =>  this.scene.launch('EndPhasePopUp', {message:finalSceneMessage, nextScene:'SpecialistScene'})
         );
     }
 
