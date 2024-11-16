@@ -2,7 +2,8 @@ import TitleScene from './scenes/TitleScene.js'
 import Specialist from './scenes/Specialist.js';
 import DoctorOfficeScene from './scenes/DoctorOfficeScene.js';
 import Phaser from 'phaser';
-import EndPhasePopUp from './scenes/EndPhasePopUp.js';
+import EndPhasePopUp from './scenes/popups/EndPhasePopUp.js';
+import HighlightObjectPopUp from './scenes/popups/HighlightObjectPopUp.js';
 
 const config = {
     type: Phaser.AUTO, // Phaser will use WebGL if available, otherwise Canvas
@@ -24,7 +25,7 @@ const config = {
             debug: true, // Set to true to enable physics debugging
         },
     },
-    scene: [TitleScene, DoctorOfficeScene, EndPhasePopUp, Specialist], 
+    scene: [TitleScene, DoctorOfficeScene, HighlightObjectPopUp,EndPhasePopUp, Specialist], 
 };
 
 export default config;
