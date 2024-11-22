@@ -18,8 +18,15 @@ module.exports = {
                 }
             },
             {
-                test: /\.(png|svg|jpg|jpeg|gif)$/i,  // Add file types here
-                type: 'asset/resource',  // Use asset/resource in Webpack 5 instead of file-loader
+                test: /\.(png|svg|jpg|jpeg|gif)$/i, // Existing rule for images
+                type: 'asset/resource',
+            },
+            {
+                test: /\.mid$/, // New rule for .mid files
+                type: 'asset/resource', // Use asset/resource to handle .mid files
+                generator: {
+                    filename: 'assets/music/[name][ext]', // Output path for .mid files
+                },
             }
         ]
     },

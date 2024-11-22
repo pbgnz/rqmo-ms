@@ -1,7 +1,7 @@
 import { ChatBox, ChatDropdownInput } from '../gameobjects/Chat';
-import background from '../assets/background.png';
-import dude from '../assets/dude.png';
-import doctor from '../assets/doctor.png';
+import background from '../assets/images/background.png';
+import dude from '../assets/images/dude.png';
+import doctor from '../assets/images/doctor.png';
 import BaseScene from './BaseScene';
 
 export default class SpecialistScene extends BaseScene {

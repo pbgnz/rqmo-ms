@@ -20,5 +20,9 @@
     "webpack": "^5.94.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.1.0"
+  },
+  "dependencies": {
+    "@tonejs/midi": "^2.0.28",
+    "tone": "^15.0.4"
   }
 }

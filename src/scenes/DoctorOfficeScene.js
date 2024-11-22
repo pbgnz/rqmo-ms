@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 import doctorImage from '../assets/images/doctor.png';
 import patientImage from '../assets/images/patient.png';
 import officeImage from '../assets/images/office.png';
