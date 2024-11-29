@@ -21,6 +21,15 @@ export default class DoctorOfficeScene extends BaseScene {
 
         // Set the scene
         this.scoreDisplay.setScene(this);
+
+        // add highlight to score display object
+        this.scene.launch('HighlightObjectPopUp', { 
+            x: 480, 
+            y: 40, 
+            highlightX: 250,
+            highlightY:50,
+            message: "Meet your new ally! It’s here to help you make smart decisions" 
+        }); 
       
         // Get the width and height of the game canvas
         const { width, height } = this.sys.game.config;
@@ -58,7 +67,7 @@ export default class DoctorOfficeScene extends BaseScene {
             75,
             'Change Scene',
             { fontSize: '20px', fill: '#ffffff', backgroundColor: '#000000', padding: { x: 10, y: 5 }, borderRadius: 5 },
-            () =>  this.scene.launch('EndPhasePopUp', {message:finalSceneMessage})
+            () =>  this.scene.launch('EndPhasePopUp', {message:finalSceneMessage, nextScene:'SpecialistScene'})
         );
     }
 

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import trophyImage from '../assets/images/trophy.png';
-import continueButton from '../assets/images/continue.png';
+import trophyImage from '../../assets/images/trophy.png';
+import continueButton from '../../assets/images/continue.png';
 
 export default class EndPhasePopUp extends Phaser.Scene {
     constructor(){super({key:'EndPhasePopUp'})}
@@ -12,7 +12,7 @@ export default class EndPhasePopUp extends Phaser.Scene {
     }
 
     create(data) {       
-        if (!this.textures.exists('closeButton') || !this.textures.exists('trophyImage') || !this.textures.exists('continueButton')) {
+        if (!this.textures.exists('trophyImage') || !this.textures.exists('continueButton')) {
             console.error('Could not find files');
             return;
         }
@@ -66,14 +66,8 @@ export default class EndPhasePopUp extends Phaser.Scene {
             this.game.canvas.style.cursor = 'default';
         });
         continueButton.on('pointerdown', () => {
-            this.hidePopup();
+            this.hidePopup(data.nextScene);
         });
-
-        // Close button positioned at the top right of the popup
-        const closeButton = this.add.image(170, -120, 'closeButton').setInteractive();
-        closeButton.setScale(0.05);  // Adjust size
-        closeButton.setOrigin(0.5);
-        closeButton.on('pointerdown', () => this.hidePopup());
 
         // Add all elements to the popup container
         this.popup.add([popupBackground, border, congratulationsText, trophyImage, continueButton]);
@@ -90,14 +84,11 @@ export default class EndPhasePopUp extends Phaser.Scene {
     }
 
 
-    hidePopup() {
+    hidePopup(nextScene) {
      this.overlay.setVisible(false);  // Hide the pink overlay
      this.popup.setVisible(false);
      this.scene.stop();
-     this.scene.start('SpecialistScene') // callback function to switch scenes
+     this.scene.start(nextScene) // callback function to switch scenes
     }
-
       
   }
-
-  
