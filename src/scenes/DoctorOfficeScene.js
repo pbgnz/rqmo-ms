@@ -1,8 +1,9 @@
-import doctorImage from '../assets/images/doctor.png';
-import patientImage from '../assets/images/patient.png';
-import officeImage from '../assets/images/office.png';
-import ToggleButton from '../gameobjects/Button.js';
-import BaseScene from './BaseScene.js';
+import { ChatBox, ChatDropdownInput } from '../gameobjects/Chat';
+import background from '../assets/images/doctor-background.png';
+import doctor from '../assets/images/doctor.png';
+import patient from '../assets/images/patient.png';
+import BaseScene from './BaseScene';
+import { GAME_DATA } from '../data';
 
 export default class DoctorOfficeScene extends BaseScene {
     constructor() {
@@ -10,118 +11,84 @@ export default class DoctorOfficeScene extends BaseScene {
     }
 
     preload() {
-        // Load images
-        this.load.image('doctor', doctorImage);
-        this.load.image('patient', patientImage);
-        this.load.image('office', officeImage);
+        super.preload();
+        this.load.image('DoctorOfficeBackground', background);
+        this.load.spritesheet('doctor', doctor, { frameWidth: 32, frameHeight: 48 });
+        this.load.spritesheet('patient', patient, { frameWidth: 32, frameHeight: 48 });
     }
 
     create(data) {
         super.create(data);
-
-        // Set the scene
         this.scoreDisplay.setScene(this);
-
-        // add highlight to score display object
+        this.add.image(this.width / 2, this.height / 2, 'DoctorOfficeBackground').setDisplaySize(this.width, this.height);
+        this.createChatBox();
+        this.startDialogue(data?.currentNode || "0");
         this.scene.launch('HighlightObjectPopUp', { 
-            x: 480, 
-            y: 40, 
-            highlightX: 250,
-            highlightY:50,
+            x: 480, y: 40, highlightX: 250, highlightY: 50, 
             message: "Meet your new ally! It’s here to help you make smart decisions" 
-        }); 
-      
-        // Get the width and height of the game canvas
-        const { width, height } = this.sys.game.config;
-
-        // Add the office background and scale it to fit the screen
-        const office = this.add.image(width / 2, height / 2, 'office');
-        office.setDisplaySize(width, height);
-
-        // Add the doctor sprite
-        this.doctor = this.add.sprite(150, height - 150, 'doctor').setScale(0.3).setInteractive();
-
-        // Add the patient sprite
-        this.patient = this.add.sprite(width - 150, height - 150, 'patient').setScale(0.15).setInteractive();
-
-        // Create inventory (starting with healthcare card)
-        this.inventory = ['Healthcare Card'];
-        this.inventoryText = this.add.text(10, 10, 'Inventory: ' + this.inventory.join(', '), { font: '18px Arial', fill: '#ffffff' });
-
-        // Dialogue box and options
-        this.dialogueText = this.add.text(100, 50, '', { font: '20px Arial', fill: '#fff', wordWrap: { width: 600 } });
-        this.options = [];
-
-        // Start the dialogue with the patient
-        this.startDialogue();
-        this.createToggleSceneButton()
-    }
-
-    createToggleSceneButton() {
-        const finalSceneMessage="Congratulations! "+
-        " You did great talking to the receptionist. Now it's time to talk to the doctor."+
-        " Press Continue when you are ready.";
-        this.switchButton = new ToggleButton(
-            this,
-            0,
-            75,
-            'Change Scene',
-            { fontSize: '20px', fill: '#ffffff', backgroundColor: '#000000', padding: { x: 10, y: 5 }, borderRadius: 5 },
-            () =>  this.scene.launch('EndPhasePopUp', {message:finalSceneMessage, nextScene:'SpecialistScene'})
-        );
-    }
-
-    startDialogue() {
-        this.showDialogue("Welcome to the doctor's office. How can I assist you today?", [
-            { text: "Send out for physical tests", action: () => this.addToInventory('Physical Test Request') },
-            { text: "Order blood tests", action: () => this.addToInventory('Blood Test Request') },
-            { text: "Refer to a specialist", action: () => this.addToInventory('Specialist Referral') },
-            { text: "Refer to social support/rare disease organizations", action: () => this.addToInventory('Support Referral') },
-            { text: "View documentation on diseases", action: () => this.viewDocumentation() }
-        ]);
-    }
-
-    showDialogue(text, options) {
-        this.dialogueText.setText(text);
-
-        // Clear previous options
-        this.options.forEach(option => option.destroy());
-        this.options = [];
-
-        // Display new options
-        options.forEach((option, index) => {
-            const optionText = this.add.text(100, 150 + (index * 40), option.text, { font: '18px Arial', fill: '#00ff00' }).setInteractive();
-
-            optionText.on('pointerdown', () => {
-                this.clearDialogue();
-                option.action();
-            });
-
-            this.options.push(optionText);
         });
     }
 
-    clearDialogue() {
-        this.dialogueText.setText('');
-        this.options.forEach(option => option.destroy());
-        this.options = [];
+    createChatBox() {
+        const rectHeight = this.height / 4;
+        const rectMargin = 0.1 * this.width;
+        this.chatBox = new ChatBox(this, rectMargin, this.height - rectHeight, this.width - 2 * rectMargin, rectHeight, ChatDropdownInput);
+        this.chatBox.chatController.addListener(this);
     }
 
-    addToInventory(item) {
-        this.inventory.push(item);
-        this.inventoryText.setText('Inventory: ' + this.inventory.join(', '));
-        this.showDialogue('The ' + item + ' has been added to your inventory.', [
-            { text: "Continue", action: () => this.startDialogue() }
-        ]);
+    startDialogue(nodeId) {
+        const node = GAME_DATA.nodes[nodeId];
+        if (node) {
+            this.currentNode = nodeId;
+            this.updateChatBox(nodeId);
+        }
     }
 
-    viewDocumentation() {
-        this.showDialogue("Here is the documentation on various diseases.", [
-            { text: "Continue", action: () => this.startDialogue() }
-        ]);
+    updateChatBox(nodeId) {
+        this.updateDoctorMessage(nodeId);
+        this.updatePlayerOptions(nodeId);
     }
 
-    update() {
-        // Update logic if needed
+    updateDoctorMessage(nodeId) {
+        const node = GAME_DATA.nodes[nodeId];
+        if (node) {
+            this.chatBox.chatController.addMessage({ sender: 'Doctor', message: node.prompt });
+        }
+    }
+
+    updatePlayerOptions(nodeId) {
+        const edges = GAME_DATA.edges[nodeId] || [];
+        const options = edges.flatMap(edge =>
+            edge.actions.map(action => ({
+                text: action.message,
+                nextNodeId: edge.to
+            }))
+        );
+        this.pendingOptions = options;
+        this.chatBox.chatInput.setOptions(options.map(option => option.text));
+    }
+
+    handleOptionSelection(nextNodeId) {
+        const targetScene = GAME_DATA.nodes[nextNodeId]?.scene;
+        if (targetScene && targetScene !== 'DoctorOfficeScene') {
+            this.scene.start(targetScene, { currentNode: nextNodeId });
+        } else {
+            this.startDialogue(nextNodeId);
+        }
+    }
+
+    onNewMessage(message) {
+        const playerMessage = typeof message === 'string' ? message : message?.message;
+        if (!playerMessage || !this.pendingOptions) return;
+
+        const selected = this.pendingOptions.find(
+            opt => opt.text.trim().toLowerCase() === playerMessage.trim().toLowerCase()
+        );
+
+        if (selected) {
+            this.handleOptionSelection(selected.nextNodeId);
+        } else {
+            console.warn("No matching option for message:", playerMessage);
+        }
     }
 }
